@@ -1,22 +1,34 @@
-from flask import Flask, render_template, request
-import requests
+from flask import Flask, render_template, request, jsonify
+import random
 
 app = Flask(__name__)
 
-API_KEY = 'YOUR_OPENWEATHERMAP_API_KEY'
+options = ['rock', 'paper', 'scissors']
 
-@app.route('/', methods=['GET', 'POST'])
+def determine_winner(player, computer):
+    if player == computer:
+        return "It's a tie!"
+    elif (player == 'rock' and computer == 'scissors') or \
+         (player == 'scissors' and computer == 'paper') or \
+         (player == 'paper' and computer == 'rock'):
+        return "You win!"
+    else:
+        return "Computer wins!"
+
+@app.route('/')
 def index():
-    weather_data = None
-    if request.method == 'POST':
-        city = request.form['city']
-        url = f"http://api.openweathermap.org/data/2.5/weather?q={city}&appid={API_KEY}&units=metric"
-        response = requests.get(url)
-        if response.status_code == 200:
-            weather_data = response.json()
-        else:
-            weather_data = {'error': 'City not found.'}
-    return render_template('index.html', weather=weather_data)
+    return render_template('index.html')
+
+@app.route('/play', methods=['POST'])
+def play():
+    player_choice = request.json['choice']
+    computer_choice = random.choice(options)
+    result = determine_winner(player_choice, computer_choice)
+    return jsonify({
+        'player': player_choice,
+        'computer': computer_choice,
+        'result': result
+    })
 
 if __name__ == '__main__':
     app.run(debug=True)

@@ -1,28 +1,37 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Weather App</title>
-    <link rel="stylesheet" type="text/css" href="style.css">
+    <meta charset="UTF-8">
+    <title>Rock Paper Scissors</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="container">
-        <h1>Weather App</h1>
-        <form method="POST">
-            <input type="text" name="city" placeholder="Enter city name" required>
-            <button type="submit">Get Weather</button>
-        </form>
-
-        {% if weather %}
-            {% if weather.error %}
-                <p class="error">{{ weather.error }}</p>
-            {% else %}
-                <div class="weather-info">
-                    <h2>{{ weather.name }}, {{ weather.sys.country }}</h2>
-                    <p>Temperature: {{ weather.main.temp }}°C</p>
-                    <p>Weather: {{ weather.weather[0].description }}</p>
-                </div>
-            {% endif %}
-        {% endif %}
+        <h1>Rock Paper Scissors</h1>
+        <div class="buttons">
+            <button onclick="play('rock')">🪨 Rock</button>
+            <button onclick="play('paper')">📄 Paper</button>
+            <button onclick="play('scissors')">✂️ Scissors</button>
+        </div>
+        <div id="result">
+            <p><strong>Your Choice:</strong> <span id="your-choice"></span></p>
+            <p><strong>Computer's Choice:</strong> <span id="computer-choice"></span></p>
+            <h2 id="outcome"></h2>
+        </div>
     </div>
+
+    <script>
+        async function play(choice) {
+            const response = await fetch('/play', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ choice })
+            });
+            const data = await response.json();
+            document.getElementById('your-choice').textContent = data.player;
+            document.getElementById('computer-choice').textContent = data.computer;
+            document.getElementById('outcome').textContent = data.result;
+        }
+    </script>
 </body>
 </html>
